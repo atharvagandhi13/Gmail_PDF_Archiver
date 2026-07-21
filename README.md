@@ -1,123 +1,297 @@
-# Gmail PDF Archiver
+# 📧 Gmail PDF Archiver
 
-A single Google Apps Script that searches your Gmail for messages sent to,
-cc'd, or bcc'd on one or more distribution lists (DLs) / mailing lists, and
-exports each matching message as an individual PDF into a Google Drive
-folder — no third-party tools, no server, no API keys.
+> A configurable **Google Apps Script** that automatically exports Gmail emails as individual PDF files into Google Drive using Gmail's native search operators.
 
-Useful for compliance archiving, audit trails, client reporting threads, or
-just backing up important DL correspondence outside Gmail.
+No third-party tools • No servers • No API keys • 100% Google Workspace
 
-## Features
+---
 
-- Filter by `to:`, `cc:`, `bcc:`, `deliveredto:`, `subject:`, and date range
-  (`after:` / `before:`), combined with `AND` / `OR` and parentheses.
-- One PDF per message (not per thread), so each email is its own file.
-- Each PDF includes From / To / Cc / Date / Subject header plus the full
-  message body.
-- Auto-paginates through all matching messages (no manual re-running for
-  large result sets).
-- Runs entirely inside Google's infrastructure — nothing leaves your
-  Google account.
+## 🚀 Overview
 
-## Requirements
+**Gmail PDF Archiver** helps automate the process of exporting Gmail messages into searchable PDF documents stored in Google Drive.
 
-- A Google account with Gmail and Google Drive.
-- Access to [script.google.com](https://script.google.com) (Google Apps
-  Script is free).
+Instead of manually opening emails and printing them as PDFs, this script automates the entire workflow.
 
-## Setup
+Perfect for:
 
-1. Go to [script.google.com](https://script.google.com) and create a new
-   project.
-2. Delete the default boilerplate and paste in the full contents of
-   [`gmail-dl-to-pdf-exporter.gs`](./gmail-dl-to-pdf-exporter.gs).
-3. Edit the `CONFIG` section at the top of the file:
-   - `QUERY` — your filter conditions (see [Query syntax](#query-syntax)
-     below).
-   - `FOLDER_NAME` — the Drive folder the PDFs will be saved into (created
-     automatically if it doesn't exist).
-4. Save the project (Ctrl/Cmd + S).
-5. From the function dropdown, select `exportDlMailsToPdf` and click
-   **Run**.
-6. On first run, Google will prompt you to authorize Gmail read access and
-   Drive file creation — review and accept.
-7. Check **View > Logs** (or **Executions**) to see how many messages were
-   exported. Your PDFs will be in the named Drive folder.
+- 📂 Email Archiving
+- 📊 Audit & Compliance
+- 📑 Client Reporting
+- 🏢 Distribution List (DL) Backups
+- 🤖 Workflow Automation
+- 📚 Knowledge Management
 
-## Query syntax
+---
 
-The script passes `QUERY` directly to Gmail's native search
-(`GmailApp.search`), so anything that works in the Gmail search bar works
-here.
+# ✨ Features
 
-| Operator | Meaning |
-|---|---|
-| `to:address` | Message was sent directly to this address |
-| `cc:address` | Address appears in Cc |
-| `bcc:address` | Only matches mail **you sent** with this address in Bcc (see limitation below) |
-| `deliveredto:address` | Message was delivered via this address/list — the reliable way to catch DL/Bcc mail you received |
-| `subject:"exact phrase"` | Subject contains this phrase |
-| `after:2026/01/01` | On or after this date |
-| `before:2026/07/01` | Strictly before this date |
+- ✅ Export Gmail emails directly as PDF
+- ✅ Supports Gmail Search Operators
+  - `to:`
+  - `cc:`
+  - `bcc:`
+  - `deliveredto:`
+  - `subject:`
+  - `after:`
+  - `before:`
+- ✅ Supports complex `AND` / `OR` conditions
+- ✅ One PDF generated per email
+- ✅ Automatically creates Drive folder
+- ✅ Processes emails in batches
+- ✅ No external APIs
+- ✅ Runs entirely within Google Workspace
 
-Example — mail to either of two DLs, with a specific subject, within a
-date range:
+---
 
-```js
-const QUERY =
-  '(' +
-    '(to:dl-alpha@example.com OR cc:dl-alpha@example.com OR deliveredto:dl-alpha@example.com)' +
-    ' OR ' +
-    '(to:dl-beta@example.com OR cc:dl-beta@example.com OR deliveredto:dl-beta@example.com)' +
-  ')' +
-  ' AND subject:"Project Update"' +
-  ' after:2026/01/01 before:2026/07/01';
-```
+# 🛠 Tech Stack
 
-### A note on Bcc
+- Google Apps Script
+- JavaScript
+- Gmail Service
+- Google Drive Service
 
-Gmail never exposes Bcc recipients on mail you *received* — that
-information simply isn't in the headers delivered to you, by design (email
-protocol limitation, not a Gmail restriction). `bcc:` in Gmail search only
-matches messages **you sent**. If you were Bcc'd via a distribution list,
-use `deliveredto:` instead — it matches based on the list the message was
-actually routed through, regardless of which header field it was in.
+---
 
-## Output
-
-Each exported PDF is named:
+# 📁 Repository Structure
 
 ```
-YYYY-MM-DD - <subject>.pdf
+Gmail_PDF_Archiver/
+│
+├── gmail_pdf_archiver.gs      # Main Google Apps Script
+├── README.md                  # Documentation
+├── LICENSE                    # MIT License
+│
+└── images/
+    ├── appscript-editor.png
+    ├── gmail-search.png
+    ├── drive-output.png
+    └── sample-pdf.png
 ```
 
-and contains a short metadata header (From / To / Cc / Date / Subject)
-followed by the message body, e.g.:
+---
+
+# ⚙️ Requirements
+
+- Google Account
+- Gmail
+- Google Drive
+- Google Apps Script
+
+---
+
+# 🚀 Getting Started
+
+## Step 1
+
+Open
+
+https://script.google.com
+
+Create a new Apps Script project.
+
+---
+
+## Step 2
+
+Copy the contents of
 
 ```
-From: sender@example.com
-To: dl-alpha@example.com
-Cc: manager@example.com
-Date: Tue Jul 21 2026 10:32:00 GMT+0000
-Subject: Project Update - Week 29
-------------------------------------
-<original message body>
+gmail_pdf_archiver.gs
 ```
 
-## Limitations
+into the Apps Script editor.
 
-- Google Apps Script executions are capped at 6 minutes; very large
-  mailboxes may need multiple runs (re-running skips nothing extra since
-  each run starts a fresh search — for true resumability, add a
-  checkpoint using `PropertiesService`, left as an extension).
-- PDF rendering uses Gmail's HTML-to-PDF conversion, so complex email
-  layouts (heavy CSS, embedded widgets) may render slightly differently
-  than in the Gmail UI.
-- Attachments are not currently extracted/embedded — only the message
-  body is exported.
+---
 
-## License
+## Step 3
 
-MIT — see [LICENSE](./LICENSE).
+Update the configuration section.
 
+```javascript
+const CONFIG = {
+
+  QUERY:
+    '(to:example@gmail.com OR cc:example@gmail.com) ' +
+    'AND subject:"Project Update" ' +
+    'after:2026/01/01 before:2026/07/01',
+
+  OUTPUT_FOLDER:
+    'Exported PDFs'
+
+};
+```
+
+---
+
+## Step 4
+
+Run
+
+```
+exportDlMailsToPdf()
+```
+
+Authorize Gmail and Drive permissions.
+
+---
+
+## Step 5
+
+Done 🎉
+
+Your PDFs will be available inside your Google Drive folder.
+
+---
+
+# 🔍 Gmail Query Examples
+
+## Single Recipient
+
+```
+to:example@gmail.com
+```
+
+---
+
+## CC
+
+```
+cc:team@example.com
+```
+
+---
+
+## Distribution List
+
+```
+deliveredto:marketing@example.com
+```
+
+---
+
+## Subject
+
+```
+subject:"Invoice"
+```
+
+---
+
+## Date Range
+
+```
+after:2026/01/01 before:2026/07/01
+```
+
+---
+
+## Multiple Conditions
+
+```javascript
+(
+(to:teamA@example.com OR cc:teamA@example.com)
+OR
+(to:teamB@example.com OR cc:teamB@example.com)
+)
+AND subject:"Project Update"
+after:2026/01/01
+before:2026/07/01
+```
+
+---
+
+# 📄 Output
+
+Generated PDFs follow this format:
+
+```
+2026-05-17 - Weekly Client Report.pdf
+```
+
+Each PDF contains:
+
+- From
+- To
+- CC
+- Date
+- Subject
+- Original Email Body
+
+---
+
+# 📸 Screenshots
+
+## Google Apps Script
+
+![Apps Script](images/appscript-editor.png)
+
+---
+
+## Gmail Search Results
+
+![Search](images/gmail-search.png)
+
+---
+
+## Generated PDFs
+
+![Drive](images/drive-output.png)
+
+---
+
+## Sample PDF
+
+![PDF](images/sample-pdf.png)
+
+---
+
+# ⚠️ Limitations
+
+- Google Apps Script executions are limited to approximately **6 minutes**.
+- Extremely large mailboxes may require multiple executions.
+- Attachments are not exported.
+- Complex HTML emails may render slightly differently in PDF format.
+- `bcc:` searches only work for emails **you have sent**. Use `deliveredto:` to locate received distribution-list emails.
+
+---
+
+# 💡 Future Enhancements
+
+- Export Attachments
+- ZIP Download Support
+- Export Entire Conversation Threads
+- Resume from Last Export
+- Progress Indicator
+- Email Label Filtering
+- HTML Export Option
+- Google Sheets Export Log
+
+---
+
+# 🤝 Contributing
+
+Contributions, feature requests, and suggestions are welcome.
+
+Feel free to fork the repository and open a Pull Request.
+
+---
+
+# 📜 License
+
+This project is licensed under the MIT License.
+
+---
+
+# ⭐ Support
+
+If you found this project useful:
+
+⭐ Star the repository
+
+🍴 Fork it
+
+💬 Share feedback
+
+---
+
+Built using ❤️ with Google Apps Script.
